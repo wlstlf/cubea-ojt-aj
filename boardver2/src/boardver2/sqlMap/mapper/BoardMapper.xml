@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="Board" >
+
+
+	<!-- map으로 받기위해서 처리 -->
+	<!-- <resultMap type="HashMap" id="boardMap">
+		<id column="num" property="num" />
+		<id column="title" property="title" />
+		<id column="name" property="name" />
+		<id column="contents" property="contents" />
+		<id column="reg_date" property="reg_date" />
+		<id column="up_date" property="up_date" />
+		<id column="view_cnt" property="view_cnt" />
+		<id column="id" property="id" />
+	</resultMap> -->
+
+	<!-- 게시판 갯수 세기 -->
+	<select id="listCount" parameterType="map" resultType="int">
+		SELECT COUNT(*) FROM BOARD_AJ 
+		  WHERE
+		  <if test="searchType == null or searchType =='all'">
+		    title like '%' ||  #{keyword} || '%' OR contents like '%' ||  #{keyword} || '%' OR name like '%' ||  #{keyword} || '%'  OR id like '%' ||  #{keyword} || '%'
+		  </if>
+		  <if test="searchType =='title'">
+		  	title like '%' ||  #{keyword} || '%'
+		  </if>
+		  <if test="searchType =='content'">
+		  	contents like '%' ||  #{keyword} || '%'
+		  </if>
+		  <if test="searchType =='author'">
+		   	name like '%' ||  #{keyword} || '%'
+		  </if> 
+		  <if test="searchType =='id'">
+		   	id like '%' ||  #{keyword} || '%'
+		  </if>
+	</select>
+
+
+	<!-- 게시판 리스트 -->
+	<!-- <select id="boardList" parameterType="map" resultType="board"> -->
+	<!-- <select id="boardList" parameterType="map" resultMap="boardMap"> --> <!-- resultMap으로 받아야함  -->
+	<select id="boardList" parameterType="map" resultType="map">
+		SELECT num,title,name,contents,reg_date,up_date,view_cnt, id FROM BOARD_AJ
+	    WHERE
+	    <if test="searchType == null or searchType =='all'">
+	      title like '%' ||  #{keyword} || '%' OR contents like '%' ||  #{keyword} || '%' OR name like '%' ||  #{keyword} || '%' OR id like '%' ||  #{keyword} || '%'
+	    </if>
+	    <if test="searchType =='title'">
+	    	title like '%' ||  #{keyword} || '%'
+	    </if>
+	    <if test="searchType =='content'">
+	    	contents like '%' ||  #{keyword} || '%'
+	    </if>
+	    <if test="searchType =='author'">
+	     	name like '%' ||  #{keyword} || '%'
+	    </if>
+	    <if test="searchType =='id'">
+	     	id like '%' ||  #{keyword} || '%'
+	    </if>
+	    ORDER BY reg_Date DESC
+	</select>	
+	
+	
+	<!-- 게시글 1개  -->
+	<!-- <select id="selectOne" parameterType="int" resultType="board"> -->
+	<!-- <select id="selectOne" parameterType="int" resultMap="boardMap"> -->
+	<select id="selectOne" parameterType="int" resultType="map">
+		SELECT num,name,title,contents,reg_date,up_date,view_cnt,id FROM BOARD_AJ WHERE num = #{num}
+	</select>
+	
+	
+	<!-- 게시글 등록  -->
+	<!-- <insert id="insertData" parameterType="board" useGeneratedKeys="true" keyProperty="num"> -->
+	<insert id="insertData" parameterType="map" useGeneratedKeys="true" keyProperty="num">
+		INSERT INTO BOARD_AJ (num, id, title, name, contents) VALUES (board_seq.NEXTVAL, #{id}, #{title}, #{name}, #{contents})
+		
+		<selectKey resultType="int" keyProperty="num" order="AFTER">
+			SELECT board_seq.CURRVAL as num FROM DUAL
+		</selectKey>
+	</insert>
+	
+	<!-- 게시글 수정  -->
+	<!-- <update id="updateData" parameterType="board"> -->
+	<update id="updateData" parameterType="map">
+		UPDATE BOARD_AJ SET title=#{title}, name=#{name}, contents=#{contents}, up_date=SYSDATE WHERE num= #{num}
+	</update>
+	
+	<!-- 게시글 삭제  -->
+	<!-- <delete id="deleteData" parameterType="board"> -->
+	<delete id="deleteData" parameterType="map">
+		DELETE FROM BOARD_AJ WHERE num= #{num}
+	</delete>
+	
+	
+	<!-- 게시글 조회수 올리기 -->
+	<update id="updateViewCnt" parameterType="int">
+		UPDATE BOARD_AJ SET view_cnt= view_cnt +1 WHERE num= #{num}
+	</update>
+	
+	
+</mapper>

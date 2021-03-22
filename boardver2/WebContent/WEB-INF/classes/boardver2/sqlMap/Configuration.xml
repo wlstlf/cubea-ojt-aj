@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+ 
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<properties resource = "db.properties" />  <!-- DB정보를 담은 properties 파일을 읽어온다. -->
+     
+    <settings>
+        <setting name="cacheEnabled" value="false" />
+        <setting name="useGeneratedKeys" value="true" />
+        <setting name="defaultExecutorType" value="REUSE" />
+    </settings>
+    
+  <!--   <typeAliases>
+		<typeAlias type="boardver2.dto.BoardDTO" alias="board"/>  DTO를 별칭으로 설정해줌 
+		<typeAlias type="boardver2.dto.MemberDTO" alias="member"/>
+	</typeAliases> -->
+ 
+ 	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />   <!-- db.properties의 변수 사용  -->
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+ 
+    <mappers>
+        <mapper resource="boardver2/sqlMap/mapper/BoardMapper.xml" />  <!-- 사용할 맵퍼 선언 -->
+        <mapper resource="boardver2/sqlMap/mapper/MemberMapper.xml" />
+    </mappers>
+    
+</configuration>
+
+

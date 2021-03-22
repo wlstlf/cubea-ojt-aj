@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="Member" >
+
+	<!-- map으로 받기위해서 처리 -->
+<!-- 	<resultMap type="HashMap" id="memberMap">
+		<id column="id" property="id" />
+		<id column="pwd" property="pwd" />
+		<id column="name" property="name" />
+		<id column="email" property="email" />
+		<id column="tel1" property="tel1" />
+		<id column="tel2" property="tel2" />
+		<id column="tel3" property="tel3" />
+		<id column="gubun" property="gubun" />
+	</resultMap> -->
+
+	
+	<!-- 회원가입 처리  -->
+	<!-- <insert id="insertMember" parameterType="member"> -->
+	<insert id="insertMember" parameterType="hashmap">
+		INSERT INTO MEMBER_AJ (id, pwd, name, email, tel1, tel2, tel3, gubun) 
+		VALUES (#{id}, #{pwd}, #{name}, #{email}, #{tel1}, #{tel2}, #{tel3}, #{gubun})
+	</insert>
+	
+	
+	<!-- 로그인 처리 -->
+	<!-- <select id="login" parameterType="String" resultType="member"> -->
+	<!-- <select id="login" parameterType="map" resultMap="memberMap">  --><!-- resultMap으로 받아야함 -->
+	<select id="login" parameterType="map" resultType="map">
+		SELECT id,pwd,name,email,tel1,tel2,tel3,gubun FROM MEMBER_AJ WHERE id=#{id} and pwd=#{pwd}
+	</select>
+	
+	<!-- id 중복 체크 -->
+	<!-- <select id="idCheck" parameterType="String" resultType="int"> -->
+	<select id="idCheck" parameterType="map" resultType="int">
+		SELECT COUNT(*) FROM MEMBER_AJ WHERE id= #{id}
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+#ui_page{position:relative; overflow:hidden; width:90%; min-width:800px;}
+
+.boardtb {margin:30px 0; width:100%;}
+.boardtb th, td{border: 1px solid green; text-align:center;}
+.boardteam {float:right}
+
+textarea {border:1px solid #b9b9b9; overflow-x:hidden; overflow-y:auto; width:700px; height:400px;}
+.board input[type=text] {width:700px;}
+
