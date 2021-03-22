@@ -6,8 +6,8 @@
 <%@page import="java.util.HashMap"%>
 
 
-<!-- 세션처리  -->
-<%@ include file="../main/header.jsp" %>
+<!-- 한글 안깨지게 처리 & 로그인 세션처리  -->
+<%@ include file="../inc/common.jsp" %>
 
 <%
 	// 한글 안깨지게 처리 (헤더에 넣음)
