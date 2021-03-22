@@ -6,18 +6,9 @@
 
 
 <%
-	// 여기서 세선 처리 
-	request.setCharacterEncoding("UTF-8");
-
 	CommonUtil common = new CommonUtil(); // 공용 util 생성!
 
 	// 세션 값 
-/* 	String mem_id = (String)session.getAttribute("mem_id");
-	String mem_name = (String)session.getAttribute("mem_name");
-	String mem_email = (String)session.getAttribute("mem_email");
-	String mem_tel = (String)session.getAttribute("mem_tel");
-	String mem_gubun = (String)session.getAttribute("mem_gubun"); */
-	
 	String mem_id = "";
 	String mem_name = "";
 	String mem_email = "";
@@ -39,11 +30,5 @@
 	}  
 	
 %>
-
-
-
-
-
-
 
 
