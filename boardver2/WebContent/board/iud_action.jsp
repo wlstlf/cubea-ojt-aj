@@ -7,6 +7,9 @@
 <%@page import="java.util.Map"%>
 
 
+<!-- 한글 안깨지게 처리 & 로그인 세션처리  -->
+<%@ include file="../inc/common.jsp" %>
+
 <%-- <jsp:useBean id="dto" class="boardver1.dto.BoardDTO" />
 <jsp:setProperty name="dto" property="*" />  --%>
 <!-- useBean 값 담아가는거 : 인코딩 에러나서 X  -->
@@ -36,7 +39,7 @@
 	// delete : d 
 	String sort = request.getParameter("sort"); // 뷰에서 넘어오는값 (3)
 
-	CommonUtil common = new CommonUtil(); // 공용 util 생성!
+	//CommonUtil common = new CommonUtil(); // 공용 util 생성!
 	//BoardDAO dao = BoardDAO.getInstance();
 	CommonDAO dao = CommonDAO.getInstance();
 	
