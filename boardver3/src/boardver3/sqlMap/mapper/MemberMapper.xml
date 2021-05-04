@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="Member" >
+
+	<!-- 회원가입 처리 // {tel1}, {tel2}, {tel3} 빼둠  -->
+	<insert id="insertMember" parameterType="map">
+		INSERT INTO MEMBER_AJ
+		(
+			ID
+			, PWD
+			, NAME
+			, EMAil
+			, GUBUN
+		) 
+		VALUES 
+		(
+			#{id}
+			, #{pwd}
+			, #{name}
+			, #{email}
+			, #{gubun}
+		)
+	</insert>
+	
+	<!-- 로그인 처리 -->
+	<select id="login" parameterType="map" resultType="map">
+		SELECT 
+			ID
+			, PWD
+			, NAME
+			, EMAIL
+			, TEL1
+			, TEL2
+			, TEL3
+			, GUBUN
+		FROM MEMBER_AJ 
+		WHERE ID = #{id} 
+		AND PWD = #{pwd}
+	</select>
+	
+	<!-- id 중복 체크 -->
+	<select id="idCheck" parameterType="map" resultType="int">
+		SELECT 
+			COUNT(*) 
+		FROM MEMBER_AJ 
+		WHERE ID = #{id}
+	</select>
+	
+	
+</mapper>

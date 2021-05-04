@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="Board" >
+
+	<!-- ===========================  게시판 ============================  -->
+	<!-- 게시판 갯수 세기 -->
+	<select id="listCount" parameterType="map" resultType="int">
+		SELECT 
+			COUNT(*) 
+		FROM BOARD_AJ 
+	    WHERE
+		  <if test="searchType == null or searchType =='all'">
+		    TITLE LIKE '%' ||#{keyword}|| '%' 
+		    OR CONTENTS LIKE '%' ||#{keyword}|| '%' 
+		    OR NAME LIKE '%' ||#{keyword}|| '%' 
+		    OR ID LIKE '%' ||#{keyword}|| '%'
+		  </if>
+		  <if test="searchType =='title'">
+		  	TITLE LIKE '%' ||#{keyword}|| '%'
+		  </if>
+		  <if test="searchType =='content'">
+		  	CONTENTS LIKE '%' ||#{keyword}|| '%'
+		  </if>
+		  <if test="searchType =='author'">
+		   	NAME LIKE '%' ||#{keyword}|| '%'
+		  </if> 
+		  <if test="searchType =='id'">
+		   	ID LIKE '%' ||#{keyword}|| '%'
+		  </if>
+	</select>
+
+	<!-- 게시판 리스트 -->
+	<select id="boardList" parameterType="map" resultType="map">
+		SELECT 
+			NUM
+			, TITLE
+			, NAME
+			, CONTENTS
+			, REG_DATE
+			, UP_DATE
+			, VIEW_CNT
+			, ID
+		FROM BOARD_AJ
+	    WHERE
+	    <if test="searchType == null or searchType =='all' or searchType == ''">
+	      TITLE LIKE '%' ||#{keyword}|| '%' 
+	      OR CONTENTS LIKE '%' ||#{keyword}|| '%' 
+	      OR NAME LIKE '%' ||#{keyword}|| '%' 
+	      OR ID LIKE '%' ||#{keyword}|| '%'
+	    </if>
+	    <if test="searchType =='title'">
+	      TITLE LIKE '%' ||#{keyword}|| '%'
+	    </if>
+	    <if test="searchType =='content'">
+	      CONTENTS LIKE '%' ||#{keyword}|| '%'
+	    </if>
+	    <if test="searchType =='author'">
+	     	NAME LIKE '%' ||#{keyword}|| '%'
+	    </if>
+	    <if test="searchType =='id'">
+	     	ID LIKE '%' ||#{keyword}|| '%'
+	    </if>
+	    ORDER BY REG_DATE DESC
+	</select>	
+	
+	<!-- 게시글 1개  -->
+	<select id="selectOne" parameterType="int" resultType="map">
+		SELECT 
+			NUM
+			, NAME
+			, TITLE
+			, CONTENTS
+			, REG_DATE
+			, UP_DATE
+			, VIEW_CNT
+			, ID 
+		FROM BOARD_AJ 
+		WHERE NUM = #{num}
+	</select>
+	
+	
+	<!-- 게시글 등록  -->
+	<insert id="insertData" parameterType="map" useGeneratedKeys="true" keyProperty="num">
+		INSERT INTO BOARD_AJ 
+		(
+			NUM
+			, ID
+			, TITLE
+			, NAME
+			, CONTENTS
+		) 
+		VALUES 
+		(
+			BOARD_SEQ.NEXTVAL
+			, #{id}
+			, #{title}
+			, #{name}
+			, #{contents}
+		)
+		<selectKey resultType="int" keyProperty="num" order="AFTER">
+			SELECT 
+				BOARD_SEQ.CURRVAL AS NUM 
+			FROM DUAL
+		</selectKey>
+	</insert>
+	
+	
+	<!-- 게시글 수정  -->
+	<update id="updateData" parameterType="map">
+		UPDATE BOARD_AJ
+		SET
+			TITLE = #{title}
+			, NAME = #{name}
+			, CONTENTS = #{contents}
+			, UP_DATE = SYSDATE 
+		WHERE NUM = #{num}
+	</update>
+	
+	<!-- 게시글 삭제  -->
+	<delete id="deleteData" parameterType="map">
+		DELETE FROM BOARD_AJ WHERE NUM= #{num}
+	</delete>
+	
+	<!-- 게시글 조회수 올리기 -->
+	<update id="updateViewCnt" parameterType="int">
+		UPDATE BOARD_AJ 
+		SET 
+			VIEW_CNT = VIEW_CNT+1 
+		WHERE NUM = #{num}
+	</update>
+	
+	<!-- ===========================  파일  ============================  -->
+	
+	<!-- 파일조회 (임시)  -->
+	<select id="selectFileCount" parameterType="map" resultType="int">
+		SELECT 
+			COUNT(*) 
+		FROM FILE_AJ 
+		WHERE NUM = #{num}
+	</select>
+	
+	<!-- 파일 등록 -->
+	<insert id="insertFile" parameterType="map">
+		INSERT INTO FILE_AJ 
+		(
+			IDX
+			, PARENT_BOARD
+			, ID
+			, UPLOAD_NAME
+			, SAVE_NAME
+		) 
+		VALUES 
+		(
+			FILE_SEQ.NEXTVAL
+			, #{newBoardnum}
+			, #{id}
+			, #{uploadFile}
+			, #{newFileName}
+		)
+	</insert>
+	
+	<!-- 파일 조회 -->
+	<select id="selectFile" parameterType="int" resultType="map">
+		SELECT 
+			IDX
+			, PARENT_BOARD
+			, ID
+			, UPLOAD_NAME
+			, SAVE_NAME
+			, REG_DATE
+			, UP_DATE
+		FROM FILE_AJ 
+		WHERE PARENT_BOARD = #{num}
+		ORDER BY IDX DESC
+	</select>
+	
+	<!-- 파일 삭제 -->
+	<delete id="deleteFile" parameterType="map">
+		DELETE FROM FILE_AJ WHERE IDX = #{idx}
+	</delete>
+	
+	<!-- =========================== 댓글 ============================  -->
+	
+	<!-- 댓글 수 가지고오기  -->
+	<select id="commentCount" parameterType="map" resultType="int">
+		SELECT 
+			COUNT(*) 
+		FROM COMMENT_AJ 
+		WHERE PARENT_BOARD = #{board_num} 
+	</select>
+	
+	
+	<!-- 댓글 가지고오기 // 계층형 쿼리 -->
+	<select id="selectComment" parameterType="map" resultType="map">
+		<!-- SELECT cmt_no, parent_board, parent_cmt, id, comments, reg_date, up_date, op_like,op_bad, depth
+		FROM COMMENT_AJ  WHERE parent_board = #{board_num} 
+		START WITH parent_cmt = 0
+		CONNECT BY PRIOR cmt_no = parent_cmt -->
+		
+		SELECT
+		    *
+		FROM
+		(
+		    SELECT
+		        A.*
+		        , DECODE(A.PARENT_CMT, 0, A.CMT_NO, A.PARENT_CMT) AS VIRTUAL_NO
+		        , DECODE(B.CAN, NULL, 0, B.CAN) AS CAN_CNT
+		        , DECODE(B.BAN, NULL, 0, B.BAN) AS BAN_CNT
+		    FROM COMMENT_AJ A
+		    LEFT OUTER JOIN
+		    (
+		        SELECT
+		            PARENT_CMT
+		            , COUNT(CASE WHEN OPINION1 = 'Y' THEN 1 END) AS CAN
+		            , COUNT(CASE WHEN OPINION2 = 'N' THEN 1 END) AS BAN
+		        FROM OPINION_AJ
+		        GROUP BY PARENT_CMT
+		    ) B
+		        ON A.CMT_NO = B.PARENT_CMT
+		    WHERE A.PARENT_BOARD = #{board_num} 
+		)
+		ORDER BY VIRTUAL_NO ASC, CMT_NO ASC
+	</select>
+	
+	<!-- 댓글 1개 가지고오기  -->
+	<select id="selectOneComment" parameterType="String" resultType="map">
+		SELECT 
+			CMT_NO
+			, PARENT_BOARD
+			, PARENT_CMT
+			, ID
+			, COMMENTS
+			, REG_DATE
+			, UP_DATE
+		FROM COMMENT_AJ 
+		WHERE CMT_NO = #{cmt_no}
+	</select>
+	
+	<!-- 댓글 등록 -->
+	<insert id="insertComment" parameterType="map">
+		INSERT INTO COMMENT_AJ
+		(
+			CMT_NO
+			, PARENT_BOARD
+			, PARENT_CMT
+			, ID
+			, COMMENTS
+			, DEPTH) 
+		VALUES 
+		(
+			COMMENT_SEQ.NEXTVAL
+			, #{parent_board}
+			, #{parent_cmt}
+			, #{id}
+			, #{comments}
+			, #{depth}
+		)
+	</insert>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateComment" parameterType="map">
+		UPDATE COMMENT_AJ 
+		SET 
+			COMMENTS = #{comments}
+			, UP_DATE = SYSDATE 
+		WHERE CMT_NO = #{cmt_no}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteComment" parameterType="map">
+		DELETE FROM COMMENT_AJ 
+		WHERE CMT_NO IN 
+		(
+			SELECT 
+				CMT_NO 
+			FROM COMMENT_AJ 
+			START WITH 
+				CMT_NO = #{cmt_no} 
+			CONNECT BY PRIOR 
+				CMT_NO = PARENT_CMT
+		)
+	</delete>
+	
+	
+	<!-- ===========================  의견  ============================  -->
+
+	<!-- 의견 수 구하기 -->
+	<select id="opinionCount" parameterType="String" resultType="map">
+		SELECT 
+			COUNT(OPINION1) AS AGREE
+			, COUNT(OPINION2) AS OPPO
+		FROM OPINION_AJ
+		WHERE PARENT_CMT = #{cmt_no}
+		GROUP BY PARENT_CMT
+	</select>
+	
+	<!--자신 id, cmt_no에 맞는 찬성,반대 있는지 가지고오기 -->
+	<select id="myopinionCount" parameterType="map" resultType="map">
+		SELECT 
+			COUNT(OPINION1) AS AGREE
+			, COUNT(OPINION2) AS OPPO
+		FROM OPINION_AJ
+		WHERE PARENT_CMT = #{cmt_no} 
+		AND ID = #{id}
+	</select>
+	
+	
+	<!--  의견 추가하기 (반대 또는 추천) -->
+	<insert id="opinionInsert" parameterType="map">
+		<if test='opinion.equals("Y")'>
+			INSERT INTO OPINION_AJ
+			(
+				IDX
+				, PARENT_CMT
+				, ID
+				, OPINION1
+				, BOARD_NUM
+			) 
+			VALUES 
+			(
+				OPINION_SEQ.NEXTVAL
+				, #{cmt_no}
+				, #{id}
+				, #{opinion}
+				, #{board_num}
+			)
+		</if>
+		<if test='opinion.equals("N")'>
+			INSERT INTO OPINION_AJ
+			(
+				IDX
+				, PARENT_CMT
+				, ID
+				, OPINION2
+				, BOARD_NUM
+			) 
+			VALUES 
+			(
+				OPINION_SEQ.NEXTVAL
+				, #{cmt_no}
+				, #{id}
+				, #{opinion}
+				, #{board_num}
+			)
+		</if>
+	</insert>
+	
+	<!-- 의견 지우기(찬->반 or 반->찬) -->
+	<update id="opinionUpdate" parameterType="map">
+		<if test='opinion.equals("Y")'>
+			UPDATE OPINION_AJ
+			SET 
+				OPINION1 = 'Y'
+				, OPINION2 = NULL 
+			WHERE PARENT_CMT = #{cmt_no} 
+			AND ID = #{id}
+		</if>
+		<if test='opinion.equals("N")'>
+			UPDATE OPINION_AJ 
+			SET 
+				OPINION1 = NULL
+				, OPINION2 = 'N' 
+			WHERE PARENT_CMT = #{cmt_no} 
+			AND ID = #{id}
+		</if>
+	</update>
+	
+	
+	<!-- ===========================  게시판 삭제시 하위 삭제 처리 ============================  -->
+	
+	<delete id="selDelComment" parameterType="map">
+	 	DELETE FROM COMMENT_AJ
+	 	WHERE PARENT_BOARD = #{num}
+	</delete>
+	
+	<delete id="selDelFile" parameterType="map">
+		DELETE FROM FILE_AJ 
+		WHERE PARENT_BOARD = #{num}
+	</delete>
+	
+	<delete id="selDelOpinion" parameterType="map">
+		DELETE FROM OPINION_AJ
+		WHERE BOARD_NUM = #{num}
+	</delete>
+	
+	 
+</mapper>
