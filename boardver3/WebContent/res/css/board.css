@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+#ui_page{position:relative; overflow:hidden; width:90%; min-width:800px;}
+
+.boardtb {margin:30px 0; width:100%;}
+.boardtb th, td{border: 1px solid green; text-align:center;}
+
+textarea {border:1px solid #b9b9b9; overflow-x:hidden; overflow-y:auto; width:700px; height:400px;}
+.board input[type=text] {width:700px;}
+.fr{float:right;}
+.bmg20{margin-bottom:20px;}
+
+#nav_menu {height:50px; margin-bottom:30px;}
+#nav_menu ul {
+	list-style-type:none;
+	/* 검은 배경색을 입히고, 보다 넓은 범위에 배경색을 넣기 위해 margin값을 약간 크게 잡아줌 */
+	background-color:#000000;
+	padding:1px 5px 5px 1px;
+	float:right;
+}
+
+#nav_menu ul li {
+	display:inline;
+	border-left: 1px solid #c0c0c0;
+	padding: 0px 10px 0px 10px;
+	margin: 5px 0px 5px 0px;
+	
+	/*흰 글씨와 9포인트의 글자로 변경함 */
+	color:#ffffff;
+	font-size:9pt;
+}
+
+#nav_menu ul li:first-child {
+	border-left: none;
+}
+
+#nav_menu a {
+ text-decoration:none;
+ color:#ffffff
+}
